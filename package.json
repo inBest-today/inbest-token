@@ -1,0 +1,31 @@
+{
+  "name": "inbest",
+  "version": "1.0.0",
+  "description": "",
+  "main": "truffle-config.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "scripts/test.sh",
+    "flatten": "sol-merger './contracts/*.sol' ./flat",
+    "coverage": "./node_modules/.bin/solidity-coverage"
+  },
+  "keywords": [],
+  "author": "Victor Vicente <victor.g.vicente@gmail.com>",
+  "license": "ISC",
+  "dependencies": {
+    "bignumber.js": "^6.0.0",
+    "ganache-cli": "^6.1.0",
+    "truffle-hdwallet-provider-privkey": "^0.1.0",
+    "web3": "^1.0.0-beta.30",
+    "zeppelin-solidity": "1.7.0"
+  },
+  "devDependencies": {
+    "fast-csv": "^2.4.1",
+    "sol-merger": "^0.1.2",
+    "solidity-coverage": "^0.4.11",
+    "truffle": "^4.1.3",
+    "truffle-contract": "^3.0.4"
+  }
+}
