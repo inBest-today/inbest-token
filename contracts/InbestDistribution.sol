@@ -26,7 +26,7 @@ contract InbestDistribution is Ownable {
   // Total of available tokens
   uint256 public AVAILABLE_TOTAL_SUPPLY    =    1e6 * DECIMALFACTOR; // 1.000.000 IBST TBD
   // Total of available tokens for presale allocations
-  uint256 public AVAILABLE_PRESALE_SUPPLY  =     5e5 * DECIMALFACTOR; // 50% Released, 12 months vesting, 6 months cliff TBD
+  uint256 public AVAILABLE_PRESALE_SUPPLY  =     5e5 * DECIMALFACTOR; // 50% Released, 18 months vesting, 6 months cliff TBD
   // Total of available tokens for company allocation
   uint256 public AVAILABLE_COMPANY_SUPPLY  =     5e5 * DECIMALFACTOR; // 50% Released at token distribution event TBD
 
@@ -98,7 +98,7 @@ contract InbestDistribution is Ownable {
     require(_recipient != companyWallet); // Receipient of presale allocation can't be company wallet
 
     uint cliff = 180 days;  // Cliff period = 6 months
-    uint vesting = 1 years; // Vesting period = 1 year
+    uint vesting = 545 days; // Vesting period = 18 months
 
     // Allocate
     AVAILABLE_PRESALE_SUPPLY = AVAILABLE_PRESALE_SUPPLY.sub(_totalAllocated);

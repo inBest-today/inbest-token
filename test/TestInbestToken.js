@@ -34,7 +34,6 @@ contract('InbestToken', function(accounts) {
 
   before(async() => {
         inbestToken = await InbestToken.new({from:accounts[0]});
-        console.log(web3);
     });
 
   describe("Token Basic Properties", async function () {

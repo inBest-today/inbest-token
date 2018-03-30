@@ -224,7 +224,7 @@ contract('InbestDistribution', function(accounts) {
         assert.equal(allocationStruct.totalAllocated, tokenAllocation);
         assert.equal(allocationStruct.AllocationType, 0);
         assert.equal(allocationStruct.endCliff, _startTime + (3600 * 24 * 180));
-        assert.equal(allocationStruct.endVesting, _startTime + (3600 * 24 * 365));
+        assert.equal(allocationStruct.endVesting, _startTime + (3600 * 24 * 545));
       });
 
       it("should get the amount of allocated tokens for company and first presale investor", async function () {
@@ -292,7 +292,7 @@ contract('InbestDistribution', function(accounts) {
         assert.equal(allocationStruct.totalAllocated, tokenAllocation);
         assert.equal(allocationStruct.AllocationType, 0);
         assert.equal(allocationStruct.endCliff, _startTime + (3600 * 24 * 180));
-        assert.equal(allocationStruct.endVesting, _startTime + (3600 * 24 * 365));
+        assert.equal(allocationStruct.endVesting, _startTime + (3600 * 24 * 545));
       });
 
       it("should get the total supply amount of tokens", async function () {
@@ -606,24 +606,7 @@ contract('InbestDistribution', function(accounts) {
           assert.equal(expectedTokenBalance.toString(10),new_tokenBalance.toString(10));
         });
 
-        it("should withdraw all second presale investor tokens", async function () {
-          let currentBlock = await web3.eth.getBlock("latest");
-
-          // Check token balance for account before calling transferTokens, then check afterwards.
-          let tokenBalance = await inbestToken.balanceOf(account_presale2,{from:account_owner});
-          let receipt = await inbestDistribution.transferTokens(account_presale2,{from:account_owner});
-          let tokensClaimed = receipt.logs[0].args._amountClaimed;
-          let new_tokenBalance = await inbestToken.balanceOf(account_presale2,{from:account_owner});
-
-          //PRESALE tokens are completely distributed once allocated as they have no vesting period nor cliff
-          let allocation = await inbestDistribution.allocations(account_presale2,{from:account_owner});
-
-          logWithdrawalData("PRESALE",currentBlock.timestamp,account_presale2,contractStartTime,allocation,tokensClaimed,new_tokenBalance);
-
-          let expectedTokenBalance = calculateExpectedTokens(allocation,currentBlock.timestamp,contractStartTime);
-
-          assert.equal(expectedTokenBalance.toString(10),new_tokenBalance.toString(10));
-        });
+        
 
         it("should transfer tokens by manual contribution to second address", async function () {
           let tokensToTransfer = 100000 * DECIMALSFACTOR;
@@ -646,6 +629,54 @@ contract('InbestDistribution', function(accounts) {
         it("should get remaining tokens allocated for company", async function () {
           let remainingAllocation = await inbestDistribution.companyRemainingAllocation({from:account_owner});;
           assert.equal(remainingAllocation, 0);
+        });
+
+      });
+
+      describe("Withdraw 18 months after allocations", async function () {
+        before(async() => {
+
+          //Time travel to startTime + 18 months;
+          await timeTravel((3600 * 24 * 180))// Move forward in time so the crowdsale has started
+          await mineBlock() // workaround for https://github.com/ethereumjs/testrpc/issues/336
+        });
+
+        it("should withdraw first presale investor tokens", async function () {
+          let currentBlock = await web3.eth.getBlock("latest");
+
+          // Check token balance for account before calling transferTokens, then check afterwards.
+          let tokenBalance = await inbestToken.balanceOf(account_presale1,{from:account_owner});
+          let receipt = await inbestDistribution.transferTokens(account_presale1,{from:account_owner});
+          let tokensClaimed = receipt.logs[0].args._amountClaimed;
+          let new_tokenBalance = await inbestToken.balanceOf(account_presale1,{from:account_owner});
+
+          //PRESALE tokens are completely distributed once allocated as they have no vesting period nor cliff
+          let allocation = await inbestDistribution.allocations(account_presale1,{from:account_owner});
+
+          logWithdrawalData("PRESALE",currentBlock.timestamp,account_presale1,contractStartTime,allocation,tokensClaimed,new_tokenBalance);
+
+          let expectedTokenBalance = calculateExpectedTokens(allocation,currentBlock.timestamp,contractStartTime);
+
+          assert.equal(expectedTokenBalance.toString(10),new_tokenBalance.toString(10));
+        });
+
+        it("should withdraw all second presale investor tokens", async function () {
+          let currentBlock = await web3.eth.getBlock("latest");
+
+          // Check token balance for account before calling transferTokens, then check afterwards.
+          let tokenBalance = await inbestToken.balanceOf(account_presale2,{from:account_owner});
+          let receipt = await inbestDistribution.transferTokens(account_presale2,{from:account_owner});
+          let tokensClaimed = receipt.logs[0].args._amountClaimed;
+          let new_tokenBalance = await inbestToken.balanceOf(account_presale2,{from:account_owner});
+
+          //PRESALE tokens are completely distributed once allocated as they have no vesting period nor cliff
+          let allocation = await inbestDistribution.allocations(account_presale2,{from:account_owner});
+
+          logWithdrawalData("PRESALE",currentBlock.timestamp,account_presale2,contractStartTime,allocation,tokensClaimed,new_tokenBalance);
+
+          let expectedTokenBalance = calculateExpectedTokens(allocation,currentBlock.timestamp,contractStartTime);
+
+          assert.equal(expectedTokenBalance.toString(10),new_tokenBalance.toString(10));
         });
 
         it("should fail to withdraw PRESALE tokens as investor has no tokens to claim", async function () {
