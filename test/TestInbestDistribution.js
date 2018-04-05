@@ -77,8 +77,9 @@ function logWithdrawalData(_allocationType, _currentBlockTime, _account_presale,
   //If fully vested (vesting time >= now) return all the allocation, else, calculate the proportion
   if(_currentTime >= _allocation[2].toNumber())
     return _allocation[3];
-  else
-    return ((_allocation[3].times( new BigNumber(_currentTime).minus(_contractStartTime))).dividedBy(_allocation[2].minus(_contractStartTime))).floor();
+  else {
+    return ((_allocation[3].times( new BigNumber(_currentTime).minus(new BigNumber(_allocation[1])))).dividedBy(new BigNumber(_allocation[2]).minus(new BigNumber(_allocation[1])))).floor();
+  }
 }
 
 contract('InbestDistribution', function(accounts) {
@@ -359,7 +360,7 @@ contract('InbestDistribution', function(accounts) {
           await mineBlock() // workaround for https://github.com/ethereumjs/testrpc/issues/336
 
           //Time travel to startTime + 3 months;
-          await timeTravel((3600 * 24 * 91.25))// Move forward in time so the crowdsale has started
+          await timeTravel((3600 * 24 * 90))// Move forward in time so the crowdsale has started
           await mineBlock() // workaround for https://github.com/ethereumjs/testrpc/issues/336
         });
 
@@ -493,7 +494,7 @@ contract('InbestDistribution', function(accounts) {
       describe("Withdraw 6 months after allocations", async function () {
         before(async() => {
           //Time travel to startTime + 6 months;
-          await timeTravel((3600 * 24 * 91.25))// Move forward in time so the crowdsale has started
+          await timeTravel((3600 * 24 * 90))// Move forward in time so the crowdsale has started
           await mineBlock() // workaround for https://github.com/ethereumjs/testrpc/issues/336
         });
 
@@ -555,7 +556,7 @@ contract('InbestDistribution', function(accounts) {
       describe("Withdraw 9 months after allocations", async function () {
         before(async() => {
           //Time travel to startTime + 9 months;
-          await timeTravel((3600 * 24 * 91.25))// Move forward in time so the crowdsale has started
+          await timeTravel((3600 * 24 * 93.75))// Move forward in time so the crowdsale has started
           await mineBlock() // workaround for https://github.com/ethereumjs/testrpc/issues/336
         });
 

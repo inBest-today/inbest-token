@@ -98,11 +98,11 @@ contract InbestDistribution is Ownable {
     require(_recipient != companyWallet); // Receipient of presale allocation can't be company wallet
 
     uint cliff = 180 days;  // Cliff period = 6 months
-    uint vesting = 545 days; // Vesting period = 18 months
+    uint vesting = 365 days; // Vesting period = 12 months after cliff
 
     // Allocate
     AVAILABLE_PRESALE_SUPPLY = AVAILABLE_PRESALE_SUPPLY.sub(_totalAllocated);
-    allocations[_recipient] = Allocation(uint8(AllocationType.PRESALE), startTime + cliff, startTime + vesting, _totalAllocated, 0);
+    allocations[_recipient] = Allocation(uint8(AllocationType.PRESALE), startTime + cliff, startTime + cliff + vesting, _totalAllocated, 0);
     AVAILABLE_TOTAL_SUPPLY = AVAILABLE_TOTAL_SUPPLY.sub(_totalAllocated);
     LogNewAllocation(_recipient, AllocationType.PRESALE, _totalAllocated, grandTotalAllocated());
   }
@@ -121,7 +121,7 @@ contract InbestDistribution is Ownable {
    uint256 newAmountClaimed;
    if (allocations[_recipient].endVesting > now) {
      // Transfer available amount based on vesting schedule and allocation
-     newAmountClaimed = allocations[_recipient].totalAllocated.mul(now.sub(startTime)).div(allocations[_recipient].endVesting.sub(startTime));
+     newAmountClaimed = allocations[_recipient].totalAllocated.mul(now.sub(allocations[_recipient].endCliff)).div(allocations[_recipient].endVesting.sub(allocations[_recipient].endCliff));
    } else {
      // Transfer total allocated (minus previously claimed tokens)
      newAmountClaimed = allocations[_recipient].totalAllocated;
