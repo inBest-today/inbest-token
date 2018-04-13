@@ -21,6 +21,11 @@ contract InbestDistribution is Ownable {
   // Number of decimal places for tokens
   uint256 private constant DECIMALFACTOR = 10**uint256(18);
 
+  // Cliff period = 6 months
+  uint256 CLIFF = 180 days;  
+  // Vesting period = 12 months after cliff
+  uint256 VESTING = 365 days; 
+
   // Total of tokens
   uint256 public constant INITIAL_SUPPLY   =    1e6 * DECIMALFACTOR; // 1.000.000 IBST TBD
   // Total of available tokens
@@ -64,7 +69,7 @@ contract InbestDistribution is Ownable {
   // Event fired when admins are modified
   event SetAdmin(address _caller, address _admin, bool _allowed);
   // Event fired when refunding tokens mistakenly sent to contract
-  event RefundTokens(address _token, address _refund, uint _value);
+  event RefundTokens(address _token, address _refund, uint256 _value);
 
   /**
     * @dev Constructor function - Set the inbest token address
@@ -78,9 +83,10 @@ contract InbestDistribution is Ownable {
     startTime = _startTime;
     companyWallet = _companyWallet;
     IBST = new InbestToken();
+    require(AVAILABLE_TOTAL_SUPPLY == IBST.totalSupply()); //To verify that totalSupply is correct
 
     // Allocate Company Supply
-    uint tokensToAllocate = AVAILABLE_COMPANY_SUPPLY;
+    uint256 tokensToAllocate = AVAILABLE_COMPANY_SUPPLY;
     AVAILABLE_COMPANY_SUPPLY = 0;
     allocations[companyWallet] = Allocation(uint8(AllocationType.COMPANY), 0, 0, tokensToAllocate, 0);
     AVAILABLE_TOTAL_SUPPLY = AVAILABLE_TOTAL_SUPPLY.sub(tokensToAllocate);
@@ -92,17 +98,16 @@ contract InbestDistribution is Ownable {
     * @param _recipient The recipient of the allocation
     * @param _totalAllocated The total amount of IBST tokens available to the receipient (after vesting and cliff)
     */
-  function setAllocation (address _recipient, uint256 _totalAllocated) onlyOwnerOrAdmin public {
+  function setAllocation (address _recipient, uint256 _totalAllocated) public onlyOwnerOrAdmin {
     require(_recipient != address(0));
+    require(startTime > now); //Allocations are allowed only before starTime
+    require(AVAILABLE_PRESALE_SUPPLY >= _totalAllocated); //Current allocation must be less than remaining presale supply
     require(allocations[_recipient].totalAllocated == 0 && _totalAllocated > 0); // Must be the first and only allocation for this recipient
     require(_recipient != companyWallet); // Receipient of presale allocation can't be company wallet
 
-    uint cliff = 180 days;  // Cliff period = 6 months
-    uint vesting = 365 days; // Vesting period = 12 months after cliff
-
     // Allocate
     AVAILABLE_PRESALE_SUPPLY = AVAILABLE_PRESALE_SUPPLY.sub(_totalAllocated);
-    allocations[_recipient] = Allocation(uint8(AllocationType.PRESALE), startTime + cliff, startTime + cliff + vesting, _totalAllocated, 0);
+    allocations[_recipient] = Allocation(uint8(AllocationType.PRESALE), startTime.add(CLIFF), startTime.add(CLIFF).add(VESTING), _totalAllocated, 0);
     AVAILABLE_TOTAL_SUPPLY = AVAILABLE_TOTAL_SUPPLY.sub(_totalAllocated);
     LogNewAllocation(_recipient, AllocationType.PRESALE, _totalAllocated, grandTotalAllocated());
   }
@@ -112,6 +117,7 @@ contract InbestDistribution is Ownable {
    * @param _recipient The address to withdraw tokens for
    */
  function transferTokens (address _recipient) public {
+   require(_recipient != address(0));
    require(now >= startTime); //Tokens can't be transfered until start date
    require(_recipient != companyWallet); // Tokens allocated to COMPANY can't be withdrawn.
    require(now >= allocations[_recipient].endCliff); // Cliff period must be ended
@@ -140,7 +146,7 @@ contract InbestDistribution is Ownable {
   * @param _recipient The address to transfer tokens for
   * @param _tokensToTransfer The amount of IBST tokens to transfer
   */
- function manualContribution(address _recipient, uint _tokensToTransfer) public onlyOwnerOrAdmin {
+ function manualContribution(address _recipient, uint256 _tokensToTransfer) public onlyOwnerOrAdmin {
    require(_recipient != address(0));
    require(_recipient != companyWallet); // Company can't withdraw tokens for itself
    require(_tokensToTransfer > 0); // The amount must be valid
@@ -160,7 +166,7 @@ contract InbestDistribution is Ownable {
   * @return Returns remaining Company allocation
   */
  function companyRemainingAllocation() public view returns (uint256) {
-   return allocations[companyWallet].totalAllocated - allocations[companyWallet].amountClaimed;
+   return allocations[companyWallet].totalAllocated.sub(allocations[companyWallet].amountClaimed);
  }
 
  /**
@@ -168,7 +174,7 @@ contract InbestDistribution is Ownable {
   * @return Returns the amount of IBST allocated
   */
   function grandTotalAllocated() public view returns (uint256) {
-    return INITIAL_SUPPLY - AVAILABLE_TOTAL_SUPPLY;
+    return INITIAL_SUPPLY.sub(AVAILABLE_TOTAL_SUPPLY);
   }
 
   /**
@@ -177,14 +183,17 @@ contract InbestDistribution is Ownable {
    * @param _allowed Status of the admin
    */
   function setAdmin(address _admin, bool _allowed) public onlyOwner {
-      admins[_admin] = _allowed;
-      SetAdmin(msg.sender,_admin,_allowed);
+    require(_admin != address(0));
+    admins[_admin] = _allowed;
+     SetAdmin(msg.sender,_admin,_allowed);
   }
 
-  function refundTokens(address _token, address _refund, uint _value) onlyOwner {
+  function refundTokens(address _token, address _refund, uint256 _value) public onlyOwner {
+    require(_refund != address(0));
+    require(_token != address(0));
     require(_token != address(IBST));
     ERC20 token = ERC20(_token);
-    token.transfer(_refund, _value);
+    require(token.transfer(_refund, _value));
     RefundTokens(_token, _refund, _value);
   }
 }
