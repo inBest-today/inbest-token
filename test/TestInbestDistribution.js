@@ -90,8 +90,8 @@ contract('InbestDistribution', function(accounts) {
   let timeOffset = 3600 * 24 * 30; // Starts in 30 days
   let _startTime = Math.floor(new Date().getTime() /1000 + timeOffset); // Starts 30 days from now
   const DECIMALSFACTOR = new BigNumber(10).pow(18);
-  let initialCompanyAllocation = 500000 * DECIMALSFACTOR;
-  let totalSupply = 1000000 * DECIMALSFACTOR;
+  let initialCompanyAllocation = 13.5e9 * DECIMALSFACTOR;
+  let totalSupply = 14e9 * DECIMALSFACTOR;
 
   let account_owner              = accounts[0];
   let account_companyWallet      = accounts[1];
@@ -214,7 +214,7 @@ contract('InbestDistribution', function(accounts) {
       });
 
       it("should allocate to first presale investor by owner", async function () {
-        let tokenAllocation = 50000 * DECIMALSFACTOR;
+        let tokenAllocation = 50000000 * DECIMALSFACTOR;
         await inbestDistribution.setAllocation(account_presale1,tokenAllocation,{from:account_owner});
         let allocation = await inbestDistribution.allocations(account_presale1,{from:account_owner});
         setAllocationStruct(allocation);
@@ -230,14 +230,14 @@ contract('InbestDistribution', function(accounts) {
 
       it("should get the amount of allocated tokens for company and first presale investor", async function () {
         let allocatedTokens = await inbestDistribution.grandTotalAllocated({from:account_owner});
-        let tokenAllocation = 50000 * DECIMALSFACTOR;
+        let tokenAllocation = 50000000 * DECIMALSFACTOR;
 
         let expectedAllocatedTokens = new BigNumber(initialCompanyAllocation).plus(new BigNumber(tokenAllocation));
         assert.equal(allocatedTokens.toString(10), expectedAllocatedTokens.toString(10));
       });
 
       it("should not allocate to first presale investor as it is already allocated", async function () {
-        let tokenAllocation = 1000 * DECIMALSFACTOR;
+        let tokenAllocation = 1000000 * DECIMALSFACTOR;
         try {
           await inbestDistribution.setAllocation(account_presale1,tokenAllocation,{from:account_owner});
         } catch (error) {
@@ -252,7 +252,7 @@ contract('InbestDistribution', function(accounts) {
       });
 
       it("should fail to allocate to companyWallet", async function () {
-        let tokenAllocation = 1000 * DECIMALSFACTOR;
+        let tokenAllocation = 1000000 * DECIMALSFACTOR;
         try {
           await inbestDistribution.setAllocation(account_companyWallet,tokenAllocation,{from:account_owner});
         } catch (error) {
@@ -267,7 +267,7 @@ contract('InbestDistribution', function(accounts) {
       });
 
       it("should fail to allocate second presale investor as caller is not admin", async function () {
-        let tokenAllocation = 1000 * DECIMALSFACTOR;
+        let tokenAllocation = 1000000 * DECIMALSFACTOR;
         try {
           await inbestDistribution.setAllocation(account_companyWallet,tokenAllocation,{from:account_companyWallet});
         } catch (error) {
@@ -282,7 +282,7 @@ contract('InbestDistribution', function(accounts) {
       });
 
       it("should allocate to second presale investor by admin", async function () {
-        let tokenAllocation = 450000 * DECIMALSFACTOR;
+        let tokenAllocation = 450000000 * DECIMALSFACTOR;
         await inbestDistribution.setAllocation(account_presale2,tokenAllocation,{from:account_admin});
         let allocation = await inbestDistribution.allocations(account_presale2,{from:account_admin});
         setAllocationStruct(allocation);
@@ -365,7 +365,7 @@ contract('InbestDistribution', function(accounts) {
         });
 
         it("should fail to transfer tokens by manual contribution to companyWallet", async function () {
-          let tokensToTransfer = 100000 * DECIMALSFACTOR;
+          let tokensToTransfer = 1000000000 * DECIMALSFACTOR;
           try {
             await inbestDistribution.manualContribution(account_companyWallet,tokensToTransfer,{from:account_owner});
           } catch (error) {
@@ -414,7 +414,7 @@ contract('InbestDistribution', function(accounts) {
         });
 
         it("should fail to transfer tokens by manual contribution as caller is not an admin", async function () {
-          let tokensToTransfer = 100000 * DECIMALSFACTOR;
+          let tokensToTransfer = 1000000000 * DECIMALSFACTOR;
           try {
             await inbestDistribution.manualContribution(account_manual1,tokensToTransfer,{from:account_companyWallet});
           } catch (error) {
@@ -447,7 +447,7 @@ contract('InbestDistribution', function(accounts) {
         });
 
         it("should transfer tokens by manual contribution to a first address called by owner", async function () {
-          let tokensToTransfer = 100000 * DECIMALSFACTOR;
+          let tokensToTransfer = 4000000000 * DECIMALSFACTOR;
           let currentBlock = await web3.eth.getBlock("latest");
 
           // Check token balance for account before calling transferTokens, then check afterwards.
@@ -466,14 +466,13 @@ contract('InbestDistribution', function(accounts) {
 
         it("should get remaining tokens allocated for company", async function () {
           let remainingAllocation = await inbestDistribution.companyRemainingAllocation({from:account_owner});
-          console.log(remainingAllocation);
-          let tokensTransfered = 100000 * DECIMALSFACTOR;
+          let tokensTransfered = 4000000000 * DECIMALSFACTOR;
           let remainingTokens = new BigNumber(initialCompanyAllocation).minus(new BigNumber(tokensTransfered));
           assert.equal(remainingAllocation.toString(10), remainingTokens.toString(10));
         });
 
         it("should transfer tokens by manual contribution to first address called by admin", async function () {
-          let tokensToTransfer = 100000 * DECIMALSFACTOR;
+          let tokensToTransfer = 2000000000 * DECIMALSFACTOR;
           let currentBlock = await web3.eth.getBlock("latest");
 
           // Check token balance for account before calling transferTokens, then check afterwards.
@@ -518,7 +517,7 @@ contract('InbestDistribution', function(accounts) {
         });
 
         it("should transfer tokens by manual contribution to a second address", async function () {
-          let tokensToTransfer = 200000 * DECIMALSFACTOR;
+          let tokensToTransfer = 3000000000 * DECIMALSFACTOR;
           let currentBlock = await web3.eth.getBlock("latest");
 
           // Check token balance for account before calling transferTokens, then check afterwards.
@@ -536,7 +535,7 @@ contract('InbestDistribution', function(accounts) {
         });
 
         it("should fail to transfer by manual contribution more tokens than allocated", async function () {
-          let tokensToTransfer = 200000 * DECIMALSFACTOR;
+          let tokensToTransfer = 5000000000 * DECIMALSFACTOR;
           try {
             await inbestDistribution.manualContribution(account_manual2,tokensToTransfer,{from:account_owner});
           } catch (error) {
@@ -610,7 +609,7 @@ contract('InbestDistribution', function(accounts) {
         
 
         it("should transfer tokens by manual contribution to second address", async function () {
-          let tokensToTransfer = 100000 * DECIMALSFACTOR;
+          let tokensToTransfer = 2000000000 * DECIMALSFACTOR;
           let currentBlock = await web3.eth.getBlock("latest");
 
           // Check token balance for account before calling transferTokens, then check afterwards.
@@ -629,7 +628,9 @@ contract('InbestDistribution', function(accounts) {
 
         it("should get remaining tokens allocated for company", async function () {
           let remainingAllocation = await inbestDistribution.companyRemainingAllocation({from:account_owner});;
-          assert.equal(remainingAllocation, 0);
+          let tokensTransfered = 11000000000 * DECIMALSFACTOR;
+          let remainingTokens = new BigNumber(initialCompanyAllocation).minus(new BigNumber(tokensTransfered));
+          assert.equal(remainingAllocation.toString(10), remainingTokens.toString(10));
         });
 
       });

@@ -27,13 +27,13 @@ contract InbestDistribution is Ownable {
   uint256 VESTING = 365 days; 
 
   // Total of tokens
-  uint256 public constant INITIAL_SUPPLY   =    1e6 * DECIMALFACTOR; // 1.000.000 IBST TBD
+  uint256 public constant INITIAL_SUPPLY   =    17656263110 * DECIMALFACTOR; // 14.000.000.000 IBST
   // Total of available tokens
-  uint256 public AVAILABLE_TOTAL_SUPPLY    =    1e6 * DECIMALFACTOR; // 1.000.000 IBST TBD
+  uint256 public AVAILABLE_TOTAL_SUPPLY    =    17656263110 * DECIMALFACTOR; // 14.000.000.000 IBST
   // Total of available tokens for presale allocations
-  uint256 public AVAILABLE_PRESALE_SUPPLY  =     5e5 * DECIMALFACTOR; // 50% Released, 18 months vesting, 6 months cliff TBD
+  uint256 public AVAILABLE_PRESALE_SUPPLY  =    16656263110 * DECIMALFACTOR; // 500.000.000 IBST, 18 months vesting, 6 months cliff
   // Total of available tokens for company allocation
-  uint256 public AVAILABLE_COMPANY_SUPPLY  =     5e5 * DECIMALFACTOR; // 50% Released at token distribution event TBD
+  uint256 public AVAILABLE_COMPANY_SUPPLY  =    1000000000 * DECIMALFACTOR; // 13.500.000.000 INST at token distribution event
 
   // Allocation types
   enum AllocationType { PRESALE, COMPANY}

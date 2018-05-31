@@ -1,3 +1,4 @@
+module.exports = function(callback) {
 var fs = require('fs');
 var csv = require('fast-csv');
 var BigNumber = require('bignumber.js');
@@ -25,7 +26,7 @@ if (typeof InbestDistribution.currentProvider.sendAsync !== "function") {
   };
 }
 
-let inbestDistributionAddress = process.argv.slice(2)[0];
+let inbestDistributionAddress = process.argv.slice(4)[0];
 
 let allocData = new Array();
 
@@ -50,8 +51,8 @@ async function distributeTokens() {
     console.log("Current block timestamp:",currentTime);
 
     for(var i = 0;i< allocData.length;i++){
-        let prevAllocation = await inbestDistribution.allocations(allocData[i][0],{from:accounts[0]});
-
+        let prevAllocation = await inbestDistribution.allocations(allocData[i][0],{from:accounts[0].toLowerCase()});
+        console.log(prevAllocation)
         if(prevAllocation[3].toNumber() == 0){
           console.log('\x1b[31m%s\x1b[0m',"SKIPPED token distribution for account:",allocData[i][0]," No allocation has been made to this account");
 
@@ -65,7 +66,7 @@ async function distributeTokens() {
           try{
             console.log("Distributing vested tokens for account:",allocData[i][0]);
 
-            let receipt = await inbestDistribution.transferTokens(allocData[i][0],{from:accounts[0], gas:200000, gasPrice: 10000000000});
+            let receipt = await inbestDistribution.transferTokens(allocData[i][0],{from:accounts[0].toLowerCase(), gas:200000, gasPrice: 10000000000});
             if(receipt && receipt.logs.length >0){
               let tokensClaimed = receipt.logs[0].args._amountClaimed.times(10 ** -18).toString(10);
               console.log("Distributed", tokensClaimed, "tokens for account:",allocData[i][0]);
@@ -121,4 +122,5 @@ if(inbestDistributionAddress){
   readFile();
 }else{
   console.log("Please run the script by providing the address of the InbestDistribution contract");
+}
 }

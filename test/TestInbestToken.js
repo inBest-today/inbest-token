@@ -26,7 +26,7 @@ contract('InbestToken', function(accounts) {
   const TOKEN_NAME = "Inbest Token";
   const TOKEN_SYMBOL = "IBST";
   const TOKEN_DECIMALS = 18;
-  const TOTAL_SUPPLY = 1000000 * DECIMALSFACTOR;
+  const TOTAL_SUPPLY = 14e9 * DECIMALSFACTOR;
 
   ////
 

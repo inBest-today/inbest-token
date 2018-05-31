@@ -1,7 +1,7 @@
 
-//const WalletProvider = require("truffle-hdwallet-provider-privkey");
-//const privKey = require('fs').readFileSync('./infura_privKey').toString();
-//const apiKey = require('fs').readFileSync('./infura_apiKey').toString();
+const WalletProvider = require("truffle-hdwallet-provider-privkey");
+const privKey = require('fs').readFileSync('./infura_privKey').toString();
+const apiKey = require('fs').readFileSync('./infura_apiKey').toString();
 
 
 module.exports = {
@@ -13,6 +13,7 @@ module.exports = {
       gas: 4500000,
     },
     mainnet: {
+      provider: new WalletProvider(privKey, "https://mainnet.infura.io/"+ apiKey),
       host: 'localhost',
       port: 8545,
       network_id: '1', // Match any network id
@@ -20,7 +21,7 @@ module.exports = {
       gasPrice: 10000000000
     },
     ropsten: {
-      //provider: new WalletProvider(privKey, "https://ropsten.infura.io/"+ apiKey),
+      provider: new WalletProvider(privKey, "https://ropsten.infura.io/"+ apiKey),
       host: 'localhost',
       port: 8545,
       network_id: '3', // Match any network id

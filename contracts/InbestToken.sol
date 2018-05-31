@@ -17,7 +17,7 @@ contract InbestToken is StandardToken {
   uint8 public constant decimals = 18;
 
   // TBD
-  uint256 public constant INITIAL_SUPPLY = 1000000 * (10 ** uint256(decimals));
+  uint256 public constant INITIAL_SUPPLY = 17656263110 * (10 ** uint256(decimals));
 
   /**
    * @dev Constructor that gives msg.sender all of existing tokens.
